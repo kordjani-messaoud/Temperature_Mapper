@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
-const apiKey = "3ca4317bb1cbb0a5e37f2ac1b5715e0d"
-
-func fetchWeather(city string, ch chan string, wg *sync.WaitGroup) interface{} {
+func fetchWeather(apiKey string, city string, ch chan string, wg *sync.WaitGroup) interface{} {
 
 	var data struct {
 		Main struct {
@@ -41,6 +42,10 @@ func fetchWeather(city string, ch chan string, wg *sync.WaitGroup) interface{} {
 
 func main() {
 
+	godotenv.Load("./.env")
+
+	apiKey := os.Getenv("API_KEY")
+
 	startNow := time.Now()
 
 	cities := []string{"Algiers", "London", "Damascus", "Cairo", "Bagdad"}
@@ -51,7 +56,7 @@ func main() {
 
 	for _, city := range cities {
 		wg.Add(1)
-		go fetchWeather(city, ch, &wg)
+		go fetchWeather(apiKey, city, ch, &wg)
 	}
 
 	go func() {
@@ -64,5 +69,4 @@ func main() {
 	}
 
 	fmt.Printf("This operation took %v\n", time.Since(startNow))
-
 }
